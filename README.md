@@ -1,4 +1,4 @@
 # SMSGateway
-Use a phone to send SMS from a server
+Android application to send SMS from a server using a phone with unlimited SMS contract
 
-Android application
+
