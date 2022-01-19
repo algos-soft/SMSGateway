@@ -1,6 +1,7 @@
 package it.algos.smsgateway;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
@@ -359,6 +360,8 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
 
