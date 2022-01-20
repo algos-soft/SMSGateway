@@ -5,10 +5,10 @@ plugins {
 android {
     signingConfigs {
         debug {
-            storeFile file('/Users/alex/AndroidStudioProjects/algos_android_keystore')
-            storePassword 'algos1'
-            keyAlias 'key0'
-            keyPassword 'algos1'
+//            storeFile file('/Users/alex/AndroidStudioProjects/algos_android_keystore')
+//            storePassword 'algos1'
+//            keyAlias 'key0'
+//            keyPassword 'algos1'
         }
     }
     compileSdk 32

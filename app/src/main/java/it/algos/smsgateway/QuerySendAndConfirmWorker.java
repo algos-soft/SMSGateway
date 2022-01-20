@@ -84,6 +84,8 @@ public class QuerySendAndConfirmWorker extends Worker {
      */
     private void queryServer() throws IOException {
 
+        String apiKey = Prefs.getString(getApplicationContext(), R.string.apikey);
+
         String url = Utils.buildUrl("messages/pending");
 
         Request request = new Request.Builder()
@@ -128,6 +130,8 @@ public class QuerySendAndConfirmWorker extends Worker {
     private void refreshToken() throws IOException {
 
         String url = Utils.buildUrl("messages/token");
+
+        String apiKey = Prefs.getString(getApplicationContext(), R.string.apikey);
 
         RequestBody body = RequestBody.create(MediaType.parse("text/plain"), Constants.API_KEY);
 

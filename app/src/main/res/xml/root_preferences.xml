@@ -2,8 +2,9 @@
 
     <PreferenceCategory app:title="@string/messages_header">
 
+
         <EditTextPreference
-            app:key="apikey"
+            app:key="@string/apikey"
             app:title="@string/api_key_title"
             app:useSimpleSummaryProvider="true" />
 
@@ -18,6 +19,10 @@
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/sync_header">
+
+        <SwitchPreferenceCompat
+            app:key="notifications"
+            app:title="Enable message notifications"/>
 
         <SwitchPreferenceCompat
             app:key="sync"
