@@ -1,40 +1,55 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory app:title="@string/messages_header">
-
+    <PreferenceCategory app:title="Authorization">
 
         <EditTextPreference
             app:key="@string/apikey"
-            app:title="@string/api_key_title"
-            app:useSimpleSummaryProvider="true" />
-
-        <ListPreference
-            app:defaultValue="reply"
-            app:entries="@array/reply_entries"
-            app:entryValues="@array/reply_values"
-            app:key="reply"
-            app:title="@string/reply_title"
-            app:useSimpleSummaryProvider="true" />
+            app:title="API Key"
+            app:useSimpleSummaryProvider="true"
+            android:defaultValue="922BEE5623AFD"
+            />
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/sync_header">
+    <PreferenceCategory app:title="Server">
+
+        <EditTextPreference
+            app:key="@string/host"
+            app:title="Host"
+            app:useSimpleSummaryProvider="true"
+            android:defaultValue="54.37.64.27"
+            />
+
+        <EditTextPreference
+            app:key="@string/port"
+            app:title="Port"
+            app:useSimpleSummaryProvider="true"
+            android:defaultValue="8090"
+            />
 
         <SwitchPreferenceCompat
-            app:key="notifications"
-            app:title="Enable message notifications"/>
+            app:key="@string/usessl"
+            app:summaryOff="Call server using http://"
+            app:summaryOn="Call server using https://"
+            app:title="Enable SSL"
+            android:defaultValue="true"
+            />
 
-        <SwitchPreferenceCompat
-            app:key="sync"
-            app:title="@string/sync_title" />
-
-        <SwitchPreferenceCompat
-            app:dependency="sync"
-            app:key="attachment"
-            app:summaryOff="@string/attachment_summary_off"
-            app:summaryOn="@string/attachment_summary_on"
-            app:title="@string/attachment_title" />
 
     </PreferenceCategory>
+
+    <PreferenceCategory app:title="Scheduler">
+
+        <EditTextPreference
+            app:key="@string/interval_minutes"
+            app:title="Polling interval (minutes)"
+            android:inputType="number"
+            app:useSimpleSummaryProvider="true"
+            android:defaultValue="30"
+            />
+
+    </PreferenceCategory>
+
 
 </PreferenceScreen>

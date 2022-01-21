@@ -13,7 +13,7 @@ public class Prefs {
     public static String getString(Context context, int key){
         String sKey = context.getString(key);
         return getPreferences(context).getString(sKey,"");
-    };
+    }
 
     public static void putString(Context context, int key, String value){
         SharedPreferences.Editor editor = getPreferences(context).edit();
@@ -29,6 +29,18 @@ public class Prefs {
         SharedPreferences.Editor editor = getPreferences(context).edit();
         editor.putInt(context.getString(key), value).apply();
     }
+
+    public static boolean getBoolean(Context context, int key){
+        String sKey = context.getString(key);
+        return getPreferences(context).getBoolean(sKey,false);
+    }
+
+    public static void putBoolean(Context context, int key, boolean value){
+        SharedPreferences.Editor editor = getPreferences(context).edit();
+        editor.putBoolean(context.getString(key), value).apply();
+    }
+
+
 
 
     public static String getString2(Context context, int key){

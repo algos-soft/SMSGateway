@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -57,7 +56,7 @@ public class QuerySendAndConfirmWorker extends Worker {
     public Result doWork() {
 
         try {
-            queryServer();
+            queryMessages();
         } catch (IOException e) {
             Utils.logException(e);
         }
@@ -82,11 +81,9 @@ public class QuerySendAndConfirmWorker extends Worker {
      * If the token is missing or expired, refresh the token and call this method again.
      * Fills the list of the messages to send (instance variable).
      */
-    private void queryServer() throws IOException {
+    private void queryMessages() throws IOException {
 
-        String apiKey = Prefs.getString(getApplicationContext(), R.string.apikey);
-
-        String url = Utils.buildUrl("messages/pending");
+        String url = Utils.buildUrl(getApplicationContext(), "messages/pending");
 
         Request request = new Request.Builder()
                 .url(url)
@@ -113,7 +110,7 @@ public class QuerySendAndConfirmWorker extends Worker {
 
                 // obtain a new token and call this method recursively
                 refreshToken();
-                queryServer();
+                queryMessages();
 
             } else {
                 String reason = response.body().string();
@@ -129,11 +126,11 @@ public class QuerySendAndConfirmWorker extends Worker {
      */
     private void refreshToken() throws IOException {
 
-        String url = Utils.buildUrl("messages/token");
+        String url = Utils.buildUrl(getApplicationContext(),"messages/token");
 
         String apiKey = Prefs.getString(getApplicationContext(), R.string.apikey);
 
-        RequestBody body = RequestBody.create(MediaType.parse("text/plain"), Constants.API_KEY);
+        RequestBody body = RequestBody.create(MediaType.parse("text/plain"), apiKey);
 
         Request request = new Request.Builder()
                 .url(url)
@@ -144,7 +141,7 @@ public class QuerySendAndConfirmWorker extends Worker {
 
         Response response = client.newCall(request).execute();
 
-        Log.i(Constants.LOG_TAG, "Response received from " + url);
+        Log.i(Constants.LOG_TAG, "Response "+response.code()+" received from " + url);
 
         if (response.isSuccessful()) {
             String sResp = response.body().string();
@@ -176,7 +173,8 @@ public class QuerySendAndConfirmWorker extends Worker {
 
             String phone = msg.getPhone();
             String text = msg.getMessage();
-            sendSMS(phone, text);
+            String id = msg.getId();
+            sendSMS(phone, text, id);
 
             SystemClock.sleep(4000);
 
@@ -187,7 +185,7 @@ public class QuerySendAndConfirmWorker extends Worker {
     /**
      * Send a single SMS
      */
-    public void sendSMS(String phoneNo, String msg) {
+    public void sendSMS(String phoneNo, String msg, String id) {
         try {
 
             SmsManager smsManager = SmsManager.getDefault();
@@ -203,6 +201,8 @@ public class QuerySendAndConfirmWorker extends Worker {
 
             setProgressAsync(new Data.Builder().build());
 
+            notifyMessageSent(id);
+
             Log.i(Constants.LOG_TAG, "SMS sent to # " + phoneNo + ": " + msg);
 
         } catch (Exception ex) {
@@ -211,6 +211,56 @@ public class QuerySendAndConfirmWorker extends Worker {
 
         }
     }
+
+
+    /**
+     * Notify the server that a message has been sent successfully
+     * <br>
+     * @param id id of the message
+     */
+    private void notifyMessageSent(String id) throws IOException {
+
+        String url = Utils.buildUrl(getApplicationContext(),"messages/sent");
+
+        RequestBody body = RequestBody.create(MediaType.parse("text/plain"), id);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("authorization", "Bearer " + token)
+                .post(body)
+                .build();
+
+        Log.i(Constants.LOG_TAG, "Sending request to " + url);
+
+        Response response = client.newCall(request).execute();
+
+        Log.i(Constants.LOG_TAG, "Response "+response.code()+" received from " + url);
+
+        if (response.isSuccessful()) {
+
+            Log.i(Constants.LOG_TAG, "Message sent with id " + id + " notified successfully to server");
+
+        } else {
+
+            int code = response.code();
+
+            if (code == HttpURLConnection.HTTP_UNAUTHORIZED) {
+
+                // obtain a new token and call this method recursively
+                refreshToken();
+                notifyMessageSent(id);
+
+            } else {
+                String reason = response.body().string();
+                throw new IOException("http code " + code + ": " + reason);
+            }
+        }
+
+
+
+
+    }
+
 
 
 }

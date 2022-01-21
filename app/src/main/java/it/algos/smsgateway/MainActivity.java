@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,7 +22,6 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.work.Constraints;
-import androidx.work.Data;
 import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
@@ -31,14 +29,9 @@ import androidx.work.WorkManager;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -72,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         observeWorker();
 
     }
+
 
 
     private void checkPermissions(){
@@ -182,15 +176,11 @@ public class MainActivity extends AppCompatActivity {
                                 // l'observer dei dati pare che non funzioni con il periodic work,
                                 // su stackoverflow suggeriscono di persistere il dato
                                 // https://stackoverflow.com/questions/66976439/workmanager-how-to-get-outputdata-from-a-periodic-work
-                                Data data = workInfo.getOutputData();
-                                Data progress = workInfo.getProgress();
-
-//                                numSmsSent = Prefs.getInt(getApplicationContext(), R.string.pref_numsms);
-//                                numSmsSent = progress.getInt(Constants.NUM_SMS_SENT_KEY, 0);
+//                                Data data = workInfo.getOutputData();
+//                                Data progress = workInfo.getProgress();
 
                                 // Do something with progress
                                 syncStatus();
-                                //syncNumSmsSent();
 
                             }
                         }
@@ -229,9 +219,23 @@ public class MainActivity extends AppCompatActivity {
      */
     void toggleWorker() throws ExecutionException, InterruptedException {
         if(isWorkerOn()){
-            stopWorker();
+
+            try {
+                stopWorker();
+            }catch (Exception e){
+                Toast.makeText(this, "Stop failed. "+e.getMessage(), Toast.LENGTH_LONG).show();
+                Log.e(Constants.LOG_TAG, "Gateway stop failed", e);
+            }
+
         }else {
-            startWorker();
+
+            try {
+                startWorker();
+            }catch (Exception e){
+                Toast.makeText(this, "Start failed. "+e.getMessage(), Toast.LENGTH_LONG).show();
+                Log.e(Constants.LOG_TAG, "Gateway start failed", e);
+            }
+
         }
     }
 
@@ -275,9 +279,24 @@ public class MainActivity extends AppCompatActivity {
         Constraints constraints = builder.build();
         // (at jan 2022, there is no constraint for cellular network present)
 
+        // retrieve the polling interval
+        String sMinutes = Prefs.getString(getApplicationContext(), R.string.interval_minutes);
+        int interval;
+        try {
+            interval = Integer.parseInt(sMinutes);
+        }catch (NumberFormatException ex){
+            throw new NumberFormatException("Invalid number '"+sMinutes+"' in polling interval");
+        }
+
+        // validate the polling interval
+        if(interval<15){
+            throw new NumberFormatException("Invalid polling interval: "+interval+". Minimum interval is 15 minutes");
+        }
+
+
         // build the periodic WorkRequest
         PeriodicWorkRequest workRequest =
-                new PeriodicWorkRequest.Builder(QuerySendAndConfirmWorker.class, 15, TimeUnit.MINUTES)
+                new PeriodicWorkRequest.Builder(QuerySendAndConfirmWorker.class, interval, TimeUnit.MINUTES)
                         .addTag(WORK_REQUEST_TAG)
                         .setConstraints(constraints)
                         .setInitialDelay(5, TimeUnit.SECONDS)
@@ -374,4 +393,5 @@ public class MainActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
     }
+
 }

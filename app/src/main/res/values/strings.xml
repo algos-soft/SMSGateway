@@ -32,6 +32,11 @@
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
 
+    <!-- Server preferences-->
     <string name="apikey">api_key</string>
+    <string name="host">host</string>
+    <string name="port">port</string>
+    <string name="usessl">use_ssl</string>
+    <string name="interval_minutes">interval_minutes</string>
 
 </resources>
