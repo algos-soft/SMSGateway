@@ -38,5 +38,6 @@
     <string name="port">port</string>
     <string name="usessl">use_ssl</string>
     <string name="interval_minutes">interval_minutes</string>
+    <string name="title_activity_log">LogActivity</string>
 
 </resources>

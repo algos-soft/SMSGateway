@@ -63,14 +63,6 @@ public class QuerySendAndConfirmWorker extends Worker {
 
         sendMessages();
 
-//        String phone = "3488122415";
-//        String phone = "3389235040";
-//        sendSMS(phone, "Hello SMS Gateway");
-
-//        SystemClock.sleep(1000);
-//        Data data = new Data.Builder().putInt(Constants.NUM_SMS_SENT_KEY, numSmsSent).build();
-//        setProgressAsync(data);
-
         return Result.success();
 
     }
