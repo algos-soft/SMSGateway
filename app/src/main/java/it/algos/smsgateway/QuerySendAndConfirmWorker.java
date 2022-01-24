@@ -166,7 +166,14 @@ public class QuerySendAndConfirmWorker extends Worker {
             String phone = msg.getPhone();
             String text = msg.getMessage();
             String id = msg.getId();
-            sendSMS(phone, text, id);
+
+            try {
+
+                sendSMS(phone, text, id);
+
+            }catch (InvalidSmsException ex){
+                Utils.logException(ex);
+            }
 
             SystemClock.sleep(4000);
 
@@ -177,7 +184,12 @@ public class QuerySendAndConfirmWorker extends Worker {
     /**
      * Send a single SMS
      */
-    public void sendSMS(String phoneNo, String msg, String id) {
+    public void sendSMS(String phoneNo, String msg, String id) throws InvalidSmsException {
+
+        if(msg.length()>160){
+            throw new InvalidSmsException("SMS text too long: "+msg.length()+" (max is 160)");
+        }
+
         try {
 
             SmsManager smsManager = SmsManager.getDefault();

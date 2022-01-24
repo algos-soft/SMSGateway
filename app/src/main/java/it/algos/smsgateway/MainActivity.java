@@ -3,6 +3,8 @@ package it.algos.smsgateway;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -17,10 +19,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.Observer;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
@@ -36,38 +34,41 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import it.algos.smsgateway.databinding.ActivityMainBinding;
-
 public class MainActivity extends AppCompatActivity {
 
     private static final String WORK_REQUEST_TAG="it.algos.smsgateway.WORK_REQUEST";
-    private AppBarConfiguration appBarConfiguration;
-    private ActivityMainBinding binding;
+
+    public MainActivity() {
+        super(R.layout.activity_main);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(R.id.first_fragment_container_view, MainFragment.class, null)
+                    .commit();
+        }
 
-        setSupportActionBar(binding.toolbar);
+        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.getOverflowIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
 
-//        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-//        appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
-//        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-
-
+        setSupportActionBar(toolbar);
 
         checkPermissions();
-
-        syncStatus();
 
         observeWorker();
 
     }
 
-
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        syncStatus();
+    }
 
     private void checkPermissions(){
 
@@ -329,38 +330,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    void showLog() throws IOException {
-
-//        String myStringArray[]= {"logcat"};
-//        Process process = Runtime.getRuntime().exec(myStringArray);
-//
-//        BufferedReader bufferedReader = new BufferedReader(
-//                new InputStreamReader(process.getInputStream()));
-//
-//        // Grab the results
-//        StringBuilder log = new StringBuilder();
-//        String line;
-//        while ((line = bufferedReader.readLine()) != null) {
-//            log.append(line + "\n");
-//        }
-
-
-//        val logCatViewModel by viewModels<LogCatViewModel>()
-//
-//        logCatViewModel.logCatOutput().observe(this, Observer{ logMessage ->
-//                logMessageTextView.append("$logMessage\n")
-//        })
-//
-//        int a = 87;
-//        int b=a;
-
-
-
-        // Update the view
-//        TextView tv = (TextView)findViewById(R.id.my_text_view);
-//        tv.setText(log.toString());
-
-    }
 
 
 
@@ -395,11 +364,5 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-//    @Override
-//    public boolean onSupportNavigateUp() {
-//        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-//        return NavigationUI.navigateUp(navController, appBarConfiguration)
-//                || super.onSupportNavigateUp();
-//    }
 
 }
