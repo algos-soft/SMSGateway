@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 import it.algos.smsgateway.databinding.FragmentMainBinding;
@@ -38,7 +37,7 @@ public class MainFragment extends Fragment {
                 try {
                     ((MainActivity)getActivity()).toggleWorker();
                 } catch (ExecutionException | InterruptedException e) {
-                    Utils.logException(e);
+                    Utils.logE(e);
                 }
             }
         });

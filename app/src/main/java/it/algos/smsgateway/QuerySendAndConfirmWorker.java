@@ -58,7 +58,7 @@ public class QuerySendAndConfirmWorker extends Worker {
         try {
             queryMessages();
         } catch (IOException e) {
-            Utils.logException(e);
+            Utils.logE(e);
         }
 
         sendMessages();
@@ -83,17 +83,17 @@ public class QuerySendAndConfirmWorker extends Worker {
                 .get()
                 .build();
 
-        Log.i(Constants.LOG_TAG, "Sending request to " + url);
+        Utils.logI("Sending request to " + url);
 
         Response response = client.newCall(request).execute();
 
-        Log.i(Constants.LOG_TAG, "Response received from " + url);
+        Utils.logI("Response received from " + url);
 
         if (response.isSuccessful()) {
 
             String json = response.body().string();
             fillMessageList(json);
-            Log.i(Constants.LOG_TAG, "Received " + messages + " messages from server");
+            Utils.logI("Received " + messages.size() + " messages from server");
 
         } else {
             int code = response.code();
@@ -118,7 +118,7 @@ public class QuerySendAndConfirmWorker extends Worker {
      */
     private void refreshToken() throws IOException {
 
-        String url = Utils.buildUrl(getApplicationContext(),"messages/token");
+        String url = Utils.buildUrl(getApplicationContext(), "messages/token");
 
         String apiKey = Prefs.getString(getApplicationContext(), R.string.apikey);
 
@@ -129,16 +129,17 @@ public class QuerySendAndConfirmWorker extends Worker {
                 .post(body)
                 .build();
 
-        Log.i(Constants.LOG_TAG, "Sending request to " + url);
+        Utils.logI("Sending request to " + url);
 
         Response response = client.newCall(request).execute();
 
-        Log.i(Constants.LOG_TAG, "Response "+response.code()+" received from " + url);
+        Utils.logI("Response " + response.code() + " received from " + url);
 
         if (response.isSuccessful()) {
             String sResp = response.body().string();
             token = sResp;
-            Log.i(Constants.LOG_TAG, "Token refreshed successfully");
+            Utils.logI("Token refreshed successfully");
+
         }
 
     }
@@ -171,8 +172,8 @@ public class QuerySendAndConfirmWorker extends Worker {
 
                 sendSMS(phone, text, id);
 
-            }catch (InvalidSmsException ex){
-                Utils.logException(ex);
+            } catch (InvalidSmsException ex) {
+                Utils.logE(ex);
             }
 
             SystemClock.sleep(4000);
@@ -186,14 +187,16 @@ public class QuerySendAndConfirmWorker extends Worker {
      */
     public void sendSMS(String phoneNo, String msg, String id) throws InvalidSmsException {
 
-        if(msg.length()>160){
-            throw new InvalidSmsException("SMS text too long: "+msg.length()+" (max is 160)");
+        if (msg.length() > 160) {
+            throw new InvalidSmsException("SMS text too long: " + msg.length() + " (max is 160)");
         }
 
         try {
 
             SmsManager smsManager = SmsManager.getDefault();
+
             smsManager.sendTextMessage(phoneNo, null, msg, null, null);
+            Utils.logI("SMS sent to # " + phoneNo + ": " + msg);
 
             // update counters in the preferences storage
             int numSms = Prefs.getInt(getApplicationContext(), R.string.pref_numsms);
@@ -207,11 +210,10 @@ public class QuerySendAndConfirmWorker extends Worker {
 
             notifyMessageSent(id);
 
-            Log.i(Constants.LOG_TAG, "SMS sent to # " + phoneNo + ": " + msg);
 
         } catch (Exception ex) {
 
-            Utils.logException(ex);
+            Utils.logE(ex);
 
         }
     }
@@ -220,11 +222,12 @@ public class QuerySendAndConfirmWorker extends Worker {
     /**
      * Notify the server that a message has been sent successfully
      * <br>
+     *
      * @param id id of the message
      */
     private void notifyMessageSent(String id) throws IOException {
 
-        String url = Utils.buildUrl(getApplicationContext(),"messages/sent");
+        String url = Utils.buildUrl(getApplicationContext(), "messages/sent");
 
         RequestBody body = RequestBody.create(MediaType.parse("text/plain"), id);
 
@@ -234,15 +237,15 @@ public class QuerySendAndConfirmWorker extends Worker {
                 .post(body)
                 .build();
 
-        Log.i(Constants.LOG_TAG, "Sending request to " + url);
+        Utils.logI("Sending request to " + url);
 
         Response response = client.newCall(request).execute();
 
-        Log.i(Constants.LOG_TAG, "Response "+response.code()+" received from " + url);
+        Utils.logI("Response " + response.code() + " received from " + url);
 
         if (response.isSuccessful()) {
 
-            Log.i(Constants.LOG_TAG, "Message sent with id " + id + " notified successfully to server");
+            Utils.logI("Message sent with id " + id + " notified successfully to server");
 
         } else {
 
@@ -261,10 +264,7 @@ public class QuerySendAndConfirmWorker extends Worker {
         }
 
 
-
-
     }
-
 
 
 }

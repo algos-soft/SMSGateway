@@ -1,8 +1,13 @@
 package it.algos.smsgateway;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -10,6 +15,10 @@ import androidx.fragment.app.Fragment;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.ExecutionException;
+
+import it.algos.smsgateway.databinding.FragmentLogBinding;
+import it.algos.smsgateway.databinding.FragmentMainBinding;
 
 public class LogActivity extends AppCompatActivity {
 
@@ -42,7 +51,7 @@ public class LogActivity extends AppCompatActivity {
         try {
             showLog();
         } catch (IOException e) {
-            Utils.logException(e);
+            Utils.logE(e);
         }
     }
 
@@ -53,54 +62,57 @@ public class LogActivity extends AppCompatActivity {
     }
 
 
-    void showLog() throws IOException {
+    public void showLog() throws IOException {
+        String log = SmsGatewayApp.getLog();
+        TextView tv = findViewById(R.id.log_view);
+        tv.setText(log);
+    }
 
-//        String myStringArray[]= {"logcat -d"};
-        Process process = Runtime.getRuntime().exec("logcat -d SMSGateway:I *:S");
-
-        BufferedReader bufferedReader = new BufferedReader(
-                new InputStreamReader(process.getInputStream()));
-
-        // Grab the results
-        StringBuilder log = new StringBuilder();
-        String line;
-        while ((line = bufferedReader.readLine()) != null) {
-            log.append(line + "\n");
+    public void clearLog() {
+        SmsGatewayApp.clearLog();
+        try {
+            showLog();
+        } catch (IOException e) {
+            Utils.logE(e);
         }
-
-        int a = 87;
-        int b=a;
-
-        TextView tv = (TextView)findViewById(R.id.log_view);
-        tv.setText(log.toString());
-
-
-
-//        val logCatViewModel by viewModels<LogCatViewModel>()
-//
-//        logCatViewModel.logCatOutput().observe(this, Observer{ logMessage ->
-//                logMessageTextView.append("$logMessage\n")
-//        })
-//
-//        int a = 87;
-//        int b=a;
-
-
-
-        // Update the view
-//        TextView tv = (TextView)findViewById(R.id.my_text_view);
-//        tv.setText(log.toString());
-
     }
 
 
-    public static class LogFragment extends Fragment {
-
-        public LogFragment() {
-            super(R.layout.fragment_log);
-        }
-
-    }
+//    public static class LogFragment extends Fragment {
+//
+//        private FragmentLogBinding binding;
+//
+//        public LogFragment() {
+//            super(R.layout.fragment_log);
+//        }
+//
+//        @Nullable
+//        @Override
+//        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+//            binding = FragmentLogBinding.inflate(inflater, container, false);
+//            return binding.getRoot();
+//        }
+//
+//
+//        public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+//            super.onViewCreated(view, savedInstanceState);
+//
+//            binding.bClearLog.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    SmsGatewayApp.clearLog();
+////                    try {
+////                        showLog();
+////                    } catch (IOException e) {
+////                        Utils.logE(e);
+////                    }
+//                }
+//            });
+//
+//        }
+//
+//
+//    }
 
 
 }

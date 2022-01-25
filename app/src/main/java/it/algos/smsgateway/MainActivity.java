@@ -27,7 +27,6 @@ import androidx.work.WorkManager;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -226,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
                 stopWorker();
             }catch (Exception e){
                 Toast.makeText(this, "Stop failed. "+e.getMessage(), Toast.LENGTH_LONG).show();
-                Log.e(Constants.LOG_TAG, "Gateway stop failed", e);
+                Utils.logE("Gateway stop failed", e);
             }
 
         }else {
@@ -235,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
                 startWorker();
             }catch (Exception e){
                 Toast.makeText(this, "Start failed. "+e.getMessage(), Toast.LENGTH_LONG).show();
-                Log.e(Constants.LOG_TAG, "Gateway start failed", e);
+                Utils.logE("Gateway start failed", e);
             }
 
         }
@@ -254,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             workers = listValidWorkers();
         } catch (ExecutionException | InterruptedException e) {
-            Utils.logException(e);
+            Utils.logE(e);
             return null;
         }
 
@@ -310,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
         // observe the progress
         observeWorker();
 
-        Log.i(Constants.LOG_TAG, "Worker started");
+        Utils.logI("Worker started");
 
     }
 
@@ -318,13 +317,13 @@ public class MainActivity extends AppCompatActivity {
     void stopWorker() {
 
         if(!isWorkerOn()){
-            Log.i(Constants.LOG_TAG, "No active workers to stop");
+            Utils.logI("No active workers to stop");
             return;
         }
 
         WorkManager wm = WorkManager.getInstance(getApplicationContext());
         wm.cancelAllWorkByTag(WORK_REQUEST_TAG);
-        Log.i(Constants.LOG_TAG, "Worker stopped");
+        Utils.logI("Worker stopped");
 
     }
 
