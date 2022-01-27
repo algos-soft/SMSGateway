@@ -1,0 +1,40 @@
+:description: Android SmsGateway.
+:doctype: book
+:toc:
+:toclevels: 3
+
+= Android SmsGateway
+
+....
+(c) Algos - v 1.0, Jan, 2022
+....
+
+
+=== Abstract
+
+Android application to send SMS messages obtained from a server using a phone with unlimited SMS contract.
+
+
+=== Important Notes
+
+Minumum API level is 29 (Android 9)
+
+At first startup, permissions for sending SMS and allowing backgound tasks are requested.
+
+You have to grant these permissions to use the application.
+
+WARNING: On some systems the permissions are not granted and you have to set these permissions manually. In any case, after installation check that the permissions are granted.
+
+How to check that the app has the correct permissions:
+
+- go to Settings -> App Management
+
+- select SMSGateway
+
+- go to Battery settings
+
+When inside Battery settings
+
+- Check that background activity is allowed.
+
+- Check that the app is NOT subject to battery optimization (battery optimization whitelist)
