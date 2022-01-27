@@ -1,18 +1,15 @@
 package it.algos.smsgateway;
 
 import android.Manifest;
-import android.app.ActivityManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
-import android.util.Log;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -39,6 +36,10 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import it.algos.smsgateway.background.QuerySendAndConfirmWorker;
+import it.algos.smsgateway.logging.LogActivity;
+import it.algos.smsgateway.settings.SettingsActivity;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String WORK_REQUEST_TAG="it.algos.smsgateway.WORK_REQUEST";
@@ -63,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(toolbar);
 
+        checkPreferenceDefaults();
+
         checkPermissions();
 
         observeWorker();
@@ -74,6 +77,36 @@ public class MainActivity extends AppCompatActivity {
         super.onPostResume();
         syncStatus();
     }
+
+
+    /**
+     * Fill empty preferences with default values
+     */
+    private void checkPreferenceDefaults(){
+        String string;
+
+        string=Prefs.getString(this, R.string.apikey);
+        if(TextUtils.isEmpty(string)){
+            Prefs.putString(this, R.string.apikey, getString(R.string.apikey_default));
+        }
+
+        string=Prefs.getString(this, R.string.host);
+        if(TextUtils.isEmpty(string)){
+            Prefs.putString(this, R.string.host, getString(R.string.host_default));
+        }
+
+        string=Prefs.getString(this, R.string.port);
+        if(TextUtils.isEmpty(string)){
+            Prefs.putString(this, R.string.port, getString(R.string.port_default));
+        }
+
+        string=Prefs.getString(this, R.string.interval_minutes);
+        if(TextUtils.isEmpty(string)){
+            Prefs.putString(this, R.string.interval_minutes, getString(R.string.interval_minutes_default));
+        }
+
+    }
+
 
     private void checkPermissions(){
 
@@ -95,6 +128,24 @@ public class MainActivity extends AppCompatActivity {
             intent.setData(Uri.parse("package:" + packageName));
             startActivity(intent);
         }
+
+//        // Check if we have write storage permission (export log)
+//        int permission = ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+//        if (permission != PackageManager.PERMISSION_GRANTED) {
+//            int a = 87;
+//            int b=a;
+//
+//            String[] PERMISSIONS_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+//
+//
+//            // We don't have permission so prompt the user
+//            ActivityCompat.requestPermissions(
+//                    this,
+//                    PERMISSIONS_STORAGE,
+//                    1
+//            );
+//        }
+
 
 
     }

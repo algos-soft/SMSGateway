@@ -2,12 +2,12 @@ package it.algos.smsgateway;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+
+import it.algos.smsgateway.logging.LogDbHelper;
+import it.algos.smsgateway.logging.LogItem;
 
 public class SmsGatewayApp extends Application {
 
