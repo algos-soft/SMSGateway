@@ -18,14 +18,14 @@
             app:key="@string/host"
             app:title="Host"
             app:useSimpleSummaryProvider="true"
-            android:defaultValue="54.37.64.27"
+            android:defaultValue="192.168.0.6"
             />
 
         <EditTextPreference
             app:key="@string/port"
             app:title="Port"
             app:useSimpleSummaryProvider="true"
-            android:defaultValue="8090"
+            android:defaultValue="8080"
             />
 
         <SwitchPreferenceCompat
@@ -33,7 +33,7 @@
             app:summaryOff="Call server using http://"
             app:summaryOn="Call server using https://"
             app:title="Enable SSL"
-            android:defaultValue="true"
+            android:defaultValue="false"
             />
 
 
