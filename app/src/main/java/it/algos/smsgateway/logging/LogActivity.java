@@ -1,7 +1,5 @@
 package it.algos.smsgateway.logging;
 
-import android.app.DownloadManager;
-import android.app.Notification;
 import android.os.Bundle;
 import android.os.Environment;
 import android.widget.TextView;
@@ -14,8 +12,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
