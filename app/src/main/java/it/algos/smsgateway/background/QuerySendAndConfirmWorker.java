@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import it.algos.smsgateway.Prefs;
 import it.algos.smsgateway.R;
@@ -48,11 +49,20 @@ public class QuerySendAndConfirmWorker extends Worker {
 
     public QuerySendAndConfirmWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
-        client = new OkHttpClient();
+
+        client = new OkHttpClient.Builder()
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(5, TimeUnit.SECONDS)
+                .build();
+
         messages = new ArrayList<>();
         token = "";
         gson = new Gson();
+
     }
+
+
 
     @NonNull
     @Override
