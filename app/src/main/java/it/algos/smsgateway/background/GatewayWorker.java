@@ -35,7 +35,7 @@ import okhttp3.Response;
  * Send the SMS in the same order as received by the server<br>
  * POST a confirmation to the server after each SMS is sent successfully.
  */
-public class QuerySendAndConfirmWorker extends Worker {
+public class GatewayWorker extends Worker {
 
 
     private OkHttpClient client;
@@ -47,7 +47,7 @@ public class QuerySendAndConfirmWorker extends Worker {
     private Gson gson;
 
 
-    public QuerySendAndConfirmWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    public GatewayWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
         client = new OkHttpClient.Builder()

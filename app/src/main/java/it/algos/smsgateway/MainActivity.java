@@ -36,7 +36,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import it.algos.smsgateway.background.QuerySendAndConfirmWorker;
+import it.algos.smsgateway.background.GatewayWorker;
 import it.algos.smsgateway.logging.LogActivity;
 import it.algos.smsgateway.settings.SettingsActivity;
 
@@ -369,7 +369,7 @@ public class MainActivity extends AppCompatActivity {
 
         // build the periodic WorkRequest
         PeriodicWorkRequest workRequest =
-                new PeriodicWorkRequest.Builder(QuerySendAndConfirmWorker.class, interval, TimeUnit.MINUTES)
+                new PeriodicWorkRequest.Builder(GatewayWorker.class, interval, TimeUnit.MINUTES)
                         .addTag(WORK_REQUEST_TAG)
                         .setConstraints(constraints)
                         .setInitialDelay(5, TimeUnit.SECONDS)
