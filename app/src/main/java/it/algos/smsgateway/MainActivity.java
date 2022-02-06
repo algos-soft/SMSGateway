@@ -297,7 +297,7 @@ public class MainActivity extends AppCompatActivity {
                 stopWorker();
             }catch (Exception e){
                 Toast.makeText(this, "Stop failed. "+e.getMessage(), Toast.LENGTH_LONG).show();
-                Utils.logE("Gateway stop failed", e);
+                LogUtils.logE("Gateway stop failed", e);
             }
 
         }else {
@@ -306,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
                 startWorker();
             }catch (Exception e){
                 Toast.makeText(this, "Start failed. "+e.getMessage(), Toast.LENGTH_LONG).show();
-                Utils.logE("Gateway start failed", e);
+                LogUtils.logE("Gateway start failed", e);
             }
 
         }
@@ -325,7 +325,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             workers = listValidWorkers();
         } catch (ExecutionException | InterruptedException e) {
-            Utils.logE(e);
+            LogUtils.logE(e);
             return null;
         }
 
@@ -381,7 +381,7 @@ public class MainActivity extends AppCompatActivity {
         // observe the progress
         observeWorker();
 
-        Utils.logI("Worker started");
+        LogUtils.logI("Worker started");
 
     }
 
@@ -389,13 +389,13 @@ public class MainActivity extends AppCompatActivity {
     void stopWorker() {
 
         if(!isWorkerOn()){
-            Utils.logI("No active workers to stop");
+            LogUtils.logI("No active workers to stop");
             return;
         }
 
         WorkManager wm = WorkManager.getInstance(getApplicationContext());
         wm.cancelAllWorkByTag(WORK_REQUEST_TAG);
-        Utils.logI("Worker stopped");
+        LogUtils.logI("Worker stopped");
 
     }
 

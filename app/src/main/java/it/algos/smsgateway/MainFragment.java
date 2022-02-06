@@ -37,7 +37,7 @@ public class MainFragment extends Fragment {
                 try {
                     ((MainActivity)getActivity()).toggleWorker();
                 } catch (ExecutionException | InterruptedException e) {
-                    Utils.logE(e);
+                    LogUtils.logE(e);
                 }
             }
         });

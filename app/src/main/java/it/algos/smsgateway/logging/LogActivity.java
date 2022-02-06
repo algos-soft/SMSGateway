@@ -17,7 +17,7 @@ import java.time.format.DateTimeFormatter;
 
 import it.algos.smsgateway.R;
 import it.algos.smsgateway.SmsGatewayApp;
-import it.algos.smsgateway.Utils;
+import it.algos.smsgateway.LogUtils;
 
 public class LogActivity extends AppCompatActivity {
 
@@ -50,7 +50,7 @@ public class LogActivity extends AppCompatActivity {
         try {
             showLog();
         } catch (IOException e) {
-            Utils.logE(e);
+            LogUtils.logE(e);
         }
     }
 
@@ -72,7 +72,7 @@ public class LogActivity extends AppCompatActivity {
         try {
             showLog();
         } catch (IOException e) {
-            Utils.logE(e);
+            LogUtils.logE(e);
         }
     }
 
@@ -102,9 +102,9 @@ public class LogActivity extends AppCompatActivity {
                     Toast.LENGTH_LONG).show();
 
         } catch (FileNotFoundException e) {
-            Utils.logE(e);
+            LogUtils.logE(e);
         } catch (IOException e) {
-            Utils.logE(e);
+            LogUtils.logE(e);
         }
 
     }

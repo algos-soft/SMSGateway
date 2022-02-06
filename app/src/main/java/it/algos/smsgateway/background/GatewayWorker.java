@@ -10,6 +10,9 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.google.gson.Gson;
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -22,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import it.algos.smsgateway.Prefs;
 import it.algos.smsgateway.R;
+import it.algos.smsgateway.LogUtils;
 import it.algos.smsgateway.Utils;
 import it.algos.smsgateway.exceptions.InvalidSmsException;
 import okhttp3.MediaType;
@@ -46,6 +50,7 @@ public class GatewayWorker extends Worker {
 
     private Gson gson;
 
+    private Utils utils;
 
     public GatewayWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -60,6 +65,8 @@ public class GatewayWorker extends Worker {
         token = "";
         gson = new Gson();
 
+        utils=new Utils();
+
     }
 
 
@@ -71,7 +78,7 @@ public class GatewayWorker extends Worker {
         try {
             queryMessages();
         } catch (IOException e) {
-            Utils.logE(e);
+            LogUtils.logE(e);
         }
 
         sendMessages();
@@ -88,7 +95,7 @@ public class GatewayWorker extends Worker {
      */
     private void queryMessages() throws IOException {
 
-        String url = Utils.buildUrl(getApplicationContext(), "messages/pending");
+        String url = utils.buildUrl(getApplicationContext(), "messages/pending");
 
         Request request = new Request.Builder()
                 .url(url)
@@ -96,17 +103,17 @@ public class GatewayWorker extends Worker {
                 .get()
                 .build();
 
-        Utils.logI("Sending request to " + url);
+        LogUtils.logI("Sending request to " + url);
 
         Response response = client.newCall(request).execute();
 
-        Utils.logI("Response received from " + url);
+        LogUtils.logI("Response received from " + url);
 
         if (response.isSuccessful()) {
 
             String json = response.body().string();
             fillMessageList(json);
-            Utils.logI("Received " + messages.size() + " messages from server");
+            LogUtils.logI("Received " + messages.size() + " messages from server");
 
         } else {
             int code = response.code();
@@ -131,7 +138,7 @@ public class GatewayWorker extends Worker {
      */
     private void refreshToken() throws IOException {
 
-        String url = Utils.buildUrl(getApplicationContext(), "messages/token");
+        String url = utils.buildUrl(getApplicationContext(), "messages/token");
 
         String apiKey = Prefs.getString(getApplicationContext(), R.string.apikey);
 
@@ -142,16 +149,16 @@ public class GatewayWorker extends Worker {
                 .post(body)
                 .build();
 
-        Utils.logI("Sending request to " + url);
+        LogUtils.logI("Sending request to " + url);
 
         Response response = client.newCall(request).execute();
 
-        Utils.logI("Response " + response.code() + " received from " + url);
+        LogUtils.logI("Response " + response.code() + " received from " + url);
 
         if (response.isSuccessful()) {
             String sResp = response.body().string();
             token = sResp;
-            Utils.logI("Token refreshed successfully");
+            LogUtils.logI("Token refreshed successfully");
 
         }
 
@@ -186,7 +193,7 @@ public class GatewayWorker extends Worker {
                 sendSMS(phone, text, id);
 
             } catch (InvalidSmsException ex) {
-                Utils.logE(ex);
+                LogUtils.logE(ex);
             }
 
             SystemClock.sleep(4000);
@@ -200,16 +207,27 @@ public class GatewayWorker extends Worker {
      */
     public void sendSMS(String phoneNo, String msg, String id) throws InvalidSmsException {
 
+        // validate phone number
+        String validNumber;
+        try {
+            Phonenumber.PhoneNumber phoneNumber = utils.validatePhoneNumber(phoneNo);
+            validNumber=""+phoneNumber.getNationalNumber();
+        } catch (NumberParseException e) {
+            throw new InvalidSmsException("Invalid phone number: "+phoneNo, e);
+        }
+
+        // validate message length
         if (msg.length() > 160) {
             throw new InvalidSmsException("SMS text too long: " + msg.length() + " (max is 160)");
         }
 
+        // send the SMS
         try {
 
             SmsManager smsManager = SmsManager.getDefault();
 
-            smsManager.sendTextMessage(phoneNo, null, msg, null, null);
-            Utils.logI("SMS sent to # " + phoneNo + ": " + msg);
+            smsManager.sendTextMessage(validNumber, null, msg, null, null);
+            LogUtils.logI("SMS sent to # " + validNumber + ": " + msg);
 
             // update counters in the preferences storage
             int numSms = Prefs.getInt(getApplicationContext(), R.string.pref_numsms);
@@ -226,7 +244,7 @@ public class GatewayWorker extends Worker {
 
         } catch (Exception ex) {
 
-            Utils.logE(ex);
+            LogUtils.logE(ex);
 
         }
     }
@@ -240,7 +258,7 @@ public class GatewayWorker extends Worker {
      */
     private void notifyMessageSent(String id) throws IOException {
 
-        String url = Utils.buildUrl(getApplicationContext(), "messages/sent");
+        String url = utils.buildUrl(getApplicationContext(), "messages/sent");
 
         RequestBody body = RequestBody.create(MediaType.parse("text/plain"), id);
 
@@ -250,15 +268,15 @@ public class GatewayWorker extends Worker {
                 .post(body)
                 .build();
 
-        Utils.logI("Sending request to " + url);
+        LogUtils.logI("Sending request to " + url);
 
         Response response = client.newCall(request).execute();
 
-        Utils.logI("Response " + response.code() + " received from " + url);
+        LogUtils.logI("Response " + response.code() + " received from " + url);
 
         if (response.isSuccessful()) {
 
-            Utils.logI("Message sent with id " + id + " notified successfully to server");
+            LogUtils.logI("Message sent with id " + id + " notified successfully to server");
 
         } else {
 
