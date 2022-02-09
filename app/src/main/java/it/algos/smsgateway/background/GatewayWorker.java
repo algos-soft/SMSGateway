@@ -38,15 +38,13 @@ import okhttp3.Response;
  * Query the server for the list of the SMS to send<br>
  * Send the SMS in the same order as received by the server<br>
  * POST a confirmation to the server after each SMS is sent successfully.
+ * <br>
+ * WARNING: Android creates a new instance of this object every time it is
+ * called by the system scheduler.
  */
 public class GatewayWorker extends Worker {
 
-
     private OkHttpClient client;
-
-    private List<Message> messages;
-
-    private String token;
 
     private Gson gson;
 
@@ -61,8 +59,6 @@ public class GatewayWorker extends Worker {
                 .writeTimeout(5, TimeUnit.SECONDS)
                 .build();
 
-        messages = new ArrayList<>();
-        token = "";
         gson = new Gson();
 
         utils=new Utils();
@@ -75,13 +71,14 @@ public class GatewayWorker extends Worker {
     @Override
     public Result doWork() {
 
+        List<Message> messages=null;
         try {
-            queryMessages();
+            messages = queryMessages();
         } catch (IOException e) {
             LogUtils.logE(e);
         }
 
-        sendMessages();
+        sendMessages(messages);
 
         return Result.success();
 
@@ -91,11 +88,13 @@ public class GatewayWorker extends Worker {
     /**
      * Query the server for the list of messages to send.
      * If the token is missing or expired, refresh the token and call this method again.
-     * Fills the list of the messages to send (instance variable).
+     * @return the list of the messages to send .
      */
-    private void queryMessages() throws IOException {
+    private List<Message> queryMessages() throws IOException {
 
         String url = utils.buildUrl(getApplicationContext(), "messages/pending");
+
+        String token = Prefs.getString(getApplicationContext(), R.string.token);
 
         Request request = new Request.Builder()
                 .url(url)
@@ -109,10 +108,17 @@ public class GatewayWorker extends Worker {
 
         LogUtils.logI("Response received from " + url);
 
+        List<Message> messages = new ArrayList<>();
+
         if (response.isSuccessful()) {
 
             String json = response.body().string();
-            fillMessageList(json);
+
+            Message[] amsg = gson.fromJson(json, Message[].class);
+            for (Message msg : amsg) {
+                messages.add(msg);
+            }
+
             LogUtils.logI("Received " + messages.size() + " messages from server");
 
         } else {
@@ -130,11 +136,13 @@ public class GatewayWorker extends Worker {
             }
         }
 
+        return messages;
+
     }
 
 
     /**
-     * Obtain a new token from the server and store it in the instance variable
+     * Obtain a new token from the server and store it in the application preference storage
      */
     private void refreshToken() throws IOException {
 
@@ -157,7 +165,7 @@ public class GatewayWorker extends Worker {
 
         if (response.isSuccessful()) {
             String sResp = response.body().string();
-            token = sResp;
+            Prefs.putString(getApplicationContext(), R.string.token, sResp);
             LogUtils.logI("Token refreshed successfully");
 
         }
@@ -166,21 +174,11 @@ public class GatewayWorker extends Worker {
 
 
     /**
-     * Clear the messages list and fill it with the query results
-     */
-    private void fillMessageList(String json) {
-        Message[] amsg = gson.fromJson(json, Message[].class);
-        messages.clear();
-        for (Message msg : amsg) {
-            messages.add(msg);
-        }
-    }
-
-    /**
      * Deliver all the messages in the list.
      * Pauses some time between messages.
+     * @param messages list of messages to send
      */
-    private void sendMessages() {
+    private void sendMessages(List<Message> messages) {
 
         for (Message msg : messages) {
 
@@ -261,6 +259,8 @@ public class GatewayWorker extends Worker {
         String url = utils.buildUrl(getApplicationContext(), "messages/sent");
 
         RequestBody body = RequestBody.create(MediaType.parse("text/plain"), id);
+
+        String token = Prefs.getString(getApplicationContext(), R.string.token);
 
         Request request = new Request.Builder()
                 .url(url)

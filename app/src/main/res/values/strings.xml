@@ -19,4 +19,7 @@
     <string name="usessl_default">false</string>
     <string name="interval_minutes_default">60</string>
 
+    <string name="token">token</string>
+
+
 </resources>
