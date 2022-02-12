@@ -13,26 +13,26 @@ public class LogItem {
     private Exception ex;
 
     public LogItem(LocalDateTime time, String lvl, String msg, Exception ex) {
-        this.time=time;
-        this.lvl=lvl;
-        this.msg=msg;
-        this.ex=ex;
+        this.time = time;
+        this.lvl = lvl;
+        this.msg = msg;
+        this.ex = ex;
     }
 
-    public String getString(){
+    public String getString() {
 
-        StringBuffer sb=new StringBuffer();
+        StringBuffer sb = new StringBuffer();
 
-        sb.append("["+time.toString()+"] "+lvl+": ");
+        sb.append("[" + time.toString() + "] " + lvl + ": ");
 
-        if(msg!=null){
+        if (msg != null) {
             sb.append(msg);
         }
 
-        if(ex!=null){
+        if (ex != null) {
             Writer writer = new StringWriter();
             ex.printStackTrace(new PrintWriter(writer));
-            if(msg!=null){
+            if (msg != null) {
                 sb.append(" ");
             }
             sb.append(writer.toString());

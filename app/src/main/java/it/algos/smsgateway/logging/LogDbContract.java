@@ -6,7 +6,8 @@ public class LogDbContract {
 
     // To prevent someone from accidentally instantiating the contract class,
     // make the constructor private.
-    private LogDbContract() {}
+    private LogDbContract() {
+    }
 
     /* Inner class that defines the table contents */
     public static class LogEntry implements BaseColumns {

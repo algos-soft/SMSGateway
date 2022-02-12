@@ -15,11 +15,14 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import it.algos.smsgateway.AppContainer;
 import it.algos.smsgateway.R;
 import it.algos.smsgateway.SmsGatewayApp;
-import it.algos.smsgateway.LogUtils;
+import it.algos.smsgateway.services.LogService;
 
 public class LogActivity extends AppCompatActivity {
+
+//    private LogService logService;
 
 
     public LogActivity() {
@@ -29,6 +32,9 @@ public class LogActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        AppContainer appContainer = ((SmsGatewayApp) getApplicationContext()).appContainer;
+//        logService =appContainer.logService;
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -50,7 +56,7 @@ public class LogActivity extends AppCompatActivity {
         try {
             showLog();
         } catch (IOException e) {
-            LogUtils.logE(e);
+            getLogService().logE(e);
         }
     }
 
@@ -62,17 +68,17 @@ public class LogActivity extends AppCompatActivity {
 
 
     public void showLog() throws IOException {
-        String log = SmsGatewayApp.getLog();
+        String log = getLogService().getLog();
         TextView tv = findViewById(R.id.log_view);
         tv.setText(log);
     }
 
     public void clearLog() {
-        SmsGatewayApp.clearLog();
+        getLogService().clearLog();
         try {
             showLog();
         } catch (IOException e) {
-            LogUtils.logE(e);
+            getLogService().logE(e);
         }
     }
 
@@ -82,34 +88,37 @@ public class LogActivity extends AppCompatActivity {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
         String timestamp = LocalDateTime.now().format(formatter);
-        String filename="smsgateway_"+timestamp+".log";
-        File file = new File(downloadsDir,filename);
+        String filename = "smsgateway_" + timestamp + ".log";
+        File file = new File(downloadsDir, filename);
 
         try {
 
-            if(file.exists()){
+            if (file.exists()) {
                 file.delete();
             }
 
             // write the log to the file
-            FileOutputStream fOut = new FileOutputStream(file,true);
-            String string = SmsGatewayApp.getLog();
+            FileOutputStream fOut = new FileOutputStream(file, true);
+            String string = getLogService().getLog();
             byte[] data = (string.getBytes());
             fOut.write(data);
             fOut.close();
             Toast.makeText(getApplicationContext(),
-                    filename+ " saved in Downloads",
+                    filename + " saved in Downloads",
                     Toast.LENGTH_LONG).show();
 
         } catch (FileNotFoundException e) {
-            LogUtils.logE(e);
+            getLogService().logE(e);
         } catch (IOException e) {
-            LogUtils.logE(e);
+            getLogService().logE(e);
         }
 
     }
 
-
+    public LogService getLogService() {
+        AppContainer appContainer = ((SmsGatewayApp) getApplicationContext()).appContainer;
+        return appContainer.getLogService();
+    }
 
 
 }

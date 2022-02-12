@@ -39,8 +39,7 @@
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            />
+            app:layout_constraintStart_toStartOf="parent" />
 
 
     </ScrollView>
@@ -55,25 +54,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginTop="16dp"
-        android:gravity="center"
-        >
+        android:gravity="center">
 
         <Button
             android:id="@+id/bClearLog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
-            android:text="Clear log"/>
+            android:text="Clear log" />
 
         <Button
             android:id="@+id/bExportLog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
-            android:text="Export log"/>
+            android:text="Export log" />
 
     </LinearLayout>
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

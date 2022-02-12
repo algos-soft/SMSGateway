@@ -53,9 +53,6 @@ public class LogDbHelper extends SQLiteOpenHelper {
     }
 
 
-
-
-
     public long insertItem(LogItem logItem) {
 
         // get writable database as we want to write data
@@ -69,7 +66,7 @@ public class LogDbHelper extends SQLiteOpenHelper {
         values.put(LogDbContract.LogEntry.COLUMN_MSG, logItem.getMsg());
 
         Exception ex = logItem.getEx();
-        if(ex!=null){
+        if (ex != null) {
             Writer writer = new StringWriter();
             ex.printStackTrace(new PrintWriter(writer));
             values.put(LogDbContract.LogEntry.COLUMN_EXCEPTION, writer.toString());
@@ -86,7 +83,7 @@ public class LogDbHelper extends SQLiteOpenHelper {
     }
 
 
-    public String getItemsAsText(){
+    public String getItemsAsText() {
 
         // Define a projection that specifies which columns from the database
         // you will actually use after this query.
@@ -113,20 +110,20 @@ public class LogDbHelper extends SQLiteOpenHelper {
                 sortOrder               // The sort order
         );
 
-        StringBuffer sb=new StringBuffer();
-        while(cursor.moveToNext()) {
+        StringBuffer sb = new StringBuffer();
+        while (cursor.moveToNext()) {
             String timestamp = cursor.getString(cursor.getColumnIndexOrThrow(LogDbContract.LogEntry.COLUMN_TIMESTAMP));
             String level = cursor.getString(cursor.getColumnIndexOrThrow(LogDbContract.LogEntry.COLUMN_LEVEL));
             String msg = cursor.getString(cursor.getColumnIndexOrThrow(LogDbContract.LogEntry.COLUMN_MSG));
             String exception = cursor.getString(cursor.getColumnIndexOrThrow(LogDbContract.LogEntry.COLUMN_EXCEPTION));
 
-            sb.append("["+timestamp+"] "+level+":");
+            sb.append("[" + timestamp + "] " + level + ":");
 
-            if(msg!=null){
-                sb.append(" "+msg);
+            if (msg != null) {
+                sb.append(" " + msg);
             }
-            if(exception!=null){
-                sb.append(" "+exception);
+            if (exception != null) {
+                sb.append(" " + exception);
             }
 
             sb.append("\n");
@@ -139,7 +136,7 @@ public class LogDbHelper extends SQLiteOpenHelper {
     }
 
 
-    public void clearDatabase(){
+    public void clearDatabase() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(LogDbContract.LogEntry.TABLE_NAME, null, null);
         db.close();
@@ -149,11 +146,11 @@ public class LogDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         long count = DatabaseUtils.queryNumEntries(db, LogDbContract.LogEntry.TABLE_NAME, null, null);
 
-        if(count> Constants.MAX_LOG_ITEMS){
-            String query = "select * from " + LogDbContract.LogEntry.TABLE_NAME + " order by _id desc limit -1 offset "+Constants.MAX_LOG_ITEMS;
+        if (count > Constants.MAX_LOG_ITEMS) {
+            String query = "select * from " + LogDbContract.LogEntry.TABLE_NAME + " order by _id desc limit -1 offset " + Constants.MAX_LOG_ITEMS;
             Cursor cursor = db.rawQuery(query, null);
-            List<Long> idsToDelete=new ArrayList<>();
-            while(cursor.moveToNext()) {
+            List<Long> idsToDelete = new ArrayList<>();
+            while (cursor.moveToNext()) {
                 long id = cursor.getLong(cursor.getColumnIndexOrThrow(LogDbContract.LogEntry._ID));
                 idsToDelete.add(id);
             }
@@ -162,12 +159,12 @@ public class LogDbHelper extends SQLiteOpenHelper {
             idsToDelete.sort(null);
 
             SQLiteDatabase dbw = getWritableDatabase();
-            for(long id : idsToDelete){
+            for (long id : idsToDelete) {
                 dbw.delete(
                         LogDbContract.LogEntry.TABLE_NAME,  // Where to delete
-                        LogDbContract.LogEntry._ID+" = ?",
-                        new String[]{""+id}  // What to delete
-                        );
+                        LogDbContract.LogEntry._ID + " = ?",
+                        new String[]{"" + id}  // What to delete
+                );
             }
             dbw.close();
 

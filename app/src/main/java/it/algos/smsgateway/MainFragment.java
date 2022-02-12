@@ -6,11 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import java.util.concurrent.ExecutionException;
 
 import it.algos.smsgateway.databinding.FragmentMainBinding;
+import it.algos.smsgateway.services.LogService;
 
 public class MainFragment extends Fragment {
 
@@ -21,7 +23,12 @@ public class MainFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         binding = FragmentMainBinding.inflate(inflater, container, false);
         return binding.getRoot();
@@ -35,9 +42,9 @@ public class MainFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 try {
-                    ((MainActivity)getActivity()).toggleWorker();
+                    ((MainActivity) getActivity()).toggleWorker();
                 } catch (ExecutionException | InterruptedException e) {
-                    LogUtils.logE(e);
+                    getLogService().logE(e);
                 }
             }
         });
@@ -61,5 +68,12 @@ public class MainFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
+
+    private LogService getLogService() {
+        AppContainer appContainer = ((SmsGatewayApp) getActivity().getApplicationContext()).appContainer;
+        return appContainer.getLogService();
+    }
+
 
 }

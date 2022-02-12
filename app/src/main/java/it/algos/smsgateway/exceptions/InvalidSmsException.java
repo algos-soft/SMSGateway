@@ -1,6 +1,6 @@
 package it.algos.smsgateway.exceptions;
 
-public class InvalidSmsException  extends Exception {
+public class InvalidSmsException extends Exception {
 
     public InvalidSmsException(Throwable cause) {
         super(cause);

@@ -38,11 +38,13 @@ import java.util.concurrent.TimeUnit;
 
 import it.algos.smsgateway.background.GatewayWorker;
 import it.algos.smsgateway.logging.LogActivity;
+import it.algos.smsgateway.services.LogService;
+import it.algos.smsgateway.services.PrefsService;
 import it.algos.smsgateway.settings.SettingsActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String WORK_REQUEST_TAG="it.algos.smsgateway.WORK_REQUEST";
+    private static final String WORK_REQUEST_TAG = "it.algos.smsgateway.WORK_REQUEST";
 
     public MainActivity() {
         super(R.layout.activity_main);
@@ -82,37 +84,37 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Fill empty preferences with default values
      */
-    private void checkPreferenceDefaults(){
+    private void checkPreferenceDefaults() {
         String string;
 
-        string=Prefs.getString(this, R.string.apikey);
-        if(TextUtils.isEmpty(string)){
-            Prefs.putString(this, R.string.apikey, getString(R.string.apikey_default));
+        string = getPrefsService().getString(R.string.apikey);
+        if (TextUtils.isEmpty(string)) {
+            getPrefsService().putString(R.string.apikey, getString(R.string.apikey_default));
         }
 
-        string=Prefs.getString(this, R.string.host);
-        if(TextUtils.isEmpty(string)){
-            Prefs.putString(this, R.string.host, getString(R.string.host_default));
+        string = getPrefsService().getString(R.string.host);
+        if (TextUtils.isEmpty(string)) {
+            getPrefsService().putString(R.string.host, getString(R.string.host_default));
         }
 
-        string=Prefs.getString(this, R.string.port);
-        if(TextUtils.isEmpty(string)){
-            Prefs.putString(this, R.string.port, getString(R.string.port_default));
+        string = getPrefsService().getString(R.string.port);
+        if (TextUtils.isEmpty(string)) {
+            getPrefsService().putString(R.string.port, getString(R.string.port_default));
         }
 
-        string=Prefs.getString(this, R.string.interval_minutes);
-        if(TextUtils.isEmpty(string)){
-            Prefs.putString(this, R.string.interval_minutes, getString(R.string.interval_minutes_default));
+        string = getPrefsService().getString(R.string.interval_minutes);
+        if (TextUtils.isEmpty(string)) {
+            getPrefsService().putString(R.string.interval_minutes, getString(R.string.interval_minutes_default));
         }
 
     }
 
 
-    private void checkPermissions(){
+    private void checkPermissions() {
 
         // check permission to send SMS
         if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-            String[] permissionsArray=new String[]{Manifest.permission.SEND_SMS};
+            String[] permissionsArray = new String[]{Manifest.permission.SEND_SMS};
             requestPermissions(permissionsArray, 3);
         }
 
@@ -147,24 +149,21 @@ public class MainActivity extends AppCompatActivity {
 //        }
 
 
-
     }
 
 
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
-                                           @NonNull int[] grantResults)
-    {
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if(requestCode==3){
+        if (requestCode == 3) {
 
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 // Showing the toast message
                 Toast.makeText(MainActivity.this, "SMS Permission Granted", Toast.LENGTH_SHORT).show();
-            }
-            else {
+            } else {
                 Toast.makeText(MainActivity.this, "SMS Permission Denied", Toast.LENGTH_SHORT).show();
 
                 finishAndRemoveTask();
@@ -176,54 +175,48 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-
     /**
      * Update the UI with the current worker status
      */
-    private void syncStatus()  {
+    private void syncStatus() {
 
         int drawableId;
         String statusText;
         String buttonText;
-        if(isWorkerOn()){
+        if (isWorkerOn()) {
             drawableId = R.drawable.ic_on;
-            statusText="The gateway is ON";
-            buttonText="Stop gateway";
-        }else{
+            statusText = "The gateway is ON";
+            buttonText = "Stop gateway";
+        } else {
             drawableId = R.drawable.ic_off;
-            statusText="The gateway is OFF";
-            buttonText="Start gateway";
+            statusText = "The gateway is OFF";
+            buttonText = "Start gateway";
         }
 
         ImageView onoffImage = findViewById(R.id.onoff_image);
-        if(onoffImage!=null){
+        if (onoffImage != null) {
             onoffImage.setImageDrawable(getResources().getDrawable(drawableId, getApplicationContext().getTheme()));
         }
 
         TextView onoffStatus = findViewById(R.id.onoff_status);
-        if(onoffStatus!=null){
+        if (onoffStatus != null) {
             onoffStatus.setText(statusText);
         }
 
         Button startStopButton = findViewById(R.id.bStartStop);
-        if(startStopButton!=null){
+        if (startStopButton != null) {
             startStopButton.setText(buttonText);
         }
 
         TextView numSmsView = findViewById(R.id.num_sms);
-        if(numSmsView!=null){
-            numSmsView.setText(""+ Prefs.getInt(getApplicationContext(), R.string.pref_numsms));
+        if (numSmsView != null) {
+            numSmsView.setText("" + getPrefsService().getInt(R.string.pref_numsms));
         }
 
         TextView lastSmsView = findViewById(R.id.last_sms_timestamp);
-        if(lastSmsView!=null){
-            lastSmsView.setText(Prefs.getString(getApplicationContext(), R.string.pref_date_last_sms));
+        if (lastSmsView != null) {
+            lastSmsView.setText(getPrefsService().getString(R.string.pref_date_last_sms));
         }
-
-
-
 
 
     }
@@ -232,13 +225,13 @@ public class MainActivity extends AppCompatActivity {
     /**
      * observe the progress of the worker
      */
-    private void observeWorker(){
+    private void observeWorker() {
 
         UUID workerId = getWorkerId();
 
-        if(workerId!=null){
+        if (workerId != null) {
 
-            WorkManager workManager= WorkManager.getInstance(getApplicationContext());
+            WorkManager workManager = WorkManager.getInstance(getApplicationContext());
 
             workManager.getWorkInfoByIdLiveData(workerId)
                     .observe(MainActivity.this, new Observer<WorkInfo>() {
@@ -265,8 +258,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
     /**
      * @return the list of the active workers (the size should always be 0 or 1)
      */
@@ -276,9 +267,9 @@ public class MainActivity extends AppCompatActivity {
         List<WorkInfo> workInfoList = future.get();
 
         List<WorkInfo> activeWorkInfoList = new ArrayList<>();
-        for(WorkInfo wi : workInfoList){
+        for (WorkInfo wi : workInfoList) {
             WorkInfo.State state = wi.getState();
-            if(!state.equals(WorkInfo.State.CANCELLED)){
+            if (!state.equals(WorkInfo.State.CANCELLED)) {
                 activeWorkInfoList.add(wi);
             }
         }
@@ -291,48 +282,48 @@ public class MainActivity extends AppCompatActivity {
      * Toggle the worker ON/OFF status
      */
     void toggleWorker() throws ExecutionException, InterruptedException {
-        if(isWorkerOn()){
+        if (isWorkerOn()) {
 
             try {
                 stopWorker();
-            }catch (Exception e){
-                Toast.makeText(this, "Stop failed. "+e.getMessage(), Toast.LENGTH_LONG).show();
-                LogUtils.logE("Gateway stop failed", e);
+            } catch (Exception e) {
+                Toast.makeText(this, "Stop failed. " + e.getMessage(), Toast.LENGTH_LONG).show();
+                getLogService().logE("Gateway stop failed", e);
             }
 
-        }else {
+        } else {
 
             try {
                 startWorker();
-            }catch (Exception e){
-                Toast.makeText(this, "Start failed. "+e.getMessage(), Toast.LENGTH_LONG).show();
-                LogUtils.logE("Gateway start failed", e);
+            } catch (Exception e) {
+                Toast.makeText(this, "Start failed. " + e.getMessage(), Toast.LENGTH_LONG).show();
+                getLogService().logE("Gateway start failed", e);
             }
 
         }
     }
 
-    private boolean isWorkerOn(){
-        return getWorkerId()!=null;
+    private boolean isWorkerOn() {
+        return getWorkerId() != null;
     }
 
     /**
      * @return the UUID of the active worker
      */
-    private UUID getWorkerId(){
+    private UUID getWorkerId() {
 
         List<WorkInfo> workers = null;
         try {
             workers = listValidWorkers();
         } catch (ExecutionException | InterruptedException e) {
-            LogUtils.logE(e);
+            getLogService().logE(e);
             return null;
         }
 
-        if(workers.size()>0){
+        if (workers.size() > 0) {
             WorkInfo workInfo = workers.get(0);
             return workInfo.getId();
-        }else{
+        } else {
             return null;
         }
 
@@ -342,8 +333,8 @@ public class MainActivity extends AppCompatActivity {
     void startWorker() {
 
         // reset the status info
-        Prefs.putInt(getApplicationContext(), R.string.pref_numsms, 0);
-        Prefs.putString(getApplicationContext(), R.string.pref_date_last_sms, "never");
+        getPrefsService().putInt(R.string.pref_numsms, 0);
+        getPrefsService().putString(R.string.pref_date_last_sms, "never");
         syncStatus();
 
         // prepare constraints
@@ -353,17 +344,17 @@ public class MainActivity extends AppCompatActivity {
         // (at jan 2022, there is no constraint for cellular network present)
 
         // retrieve the polling interval
-        String sMinutes = Prefs.getString(getApplicationContext(), R.string.interval_minutes);
+        String sMinutes = getPrefsService().getString(R.string.interval_minutes);
         int interval;
         try {
             interval = Integer.parseInt(sMinutes);
-        }catch (NumberFormatException ex){
-            throw new NumberFormatException("Invalid number '"+sMinutes+"' in polling interval");
+        } catch (NumberFormatException ex) {
+            throw new NumberFormatException("Invalid number '" + sMinutes + "' in polling interval");
         }
 
         // validate the polling interval
-        if(interval<15){
-            throw new NumberFormatException("Invalid polling interval: "+interval+". Minimum interval is 15 minutes");
+        if (interval < 15) {
+            throw new NumberFormatException("Invalid polling interval: " + interval + ". Minimum interval is 15 minutes");
         }
 
 
@@ -381,27 +372,23 @@ public class MainActivity extends AppCompatActivity {
         // observe the progress
         observeWorker();
 
-        LogUtils.logI("Worker started");
+        getLogService().logI("Worker started");
 
     }
 
 
     void stopWorker() {
 
-        if(!isWorkerOn()){
-            LogUtils.logI("No active workers to stop");
+        if (!isWorkerOn()) {
+            getLogService().logI("No active workers to stop");
             return;
         }
 
         WorkManager wm = WorkManager.getInstance(getApplicationContext());
         wm.cancelAllWorkByTag(WORK_REQUEST_TAG);
-        LogUtils.logI("Worker stopped");
+        getLogService().logI("Worker stopped");
 
     }
-
-
-
-
 
 
     @Override
@@ -433,6 +420,17 @@ public class MainActivity extends AppCompatActivity {
 
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    private LogService getLogService() {
+        AppContainer appContainer = ((SmsGatewayApp) getApplicationContext()).appContainer;
+        return appContainer.getLogService();
+    }
+
+    public PrefsService getPrefsService() {
+        AppContainer appContainer = ((SmsGatewayApp) getApplicationContext()).appContainer;
+        return appContainer.getPrefsService();
     }
 
 

@@ -24,7 +24,7 @@ public class ExampleUnitTest {
     @Before
     public void init() {
         int a = 87;
-        int b=a;
+        int b = a;
     }
 
 

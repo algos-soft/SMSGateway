@@ -17,7 +17,7 @@ import java.io.File;
 import it.algos.smsgateway.R;
 import it.algos.smsgateway.databinding.FragmentLogBinding;
 
-public class LogFragment extends Fragment  {
+public class LogFragment extends Fragment {
 
     private FragmentLogBinding binding;
 
@@ -44,9 +44,9 @@ public class LogFragment extends Fragment  {
                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
+                        switch (which) {
                             case DialogInterface.BUTTON_POSITIVE:
-                                ((LogActivity)getActivity()).clearLog();
+                                ((LogActivity) getActivity()).clearLog();
                                 break;
 
                             case DialogInterface.BUTTON_NEGATIVE:
@@ -63,12 +63,11 @@ public class LogFragment extends Fragment  {
         });
 
 
-
         binding.bExportLog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                ((LogActivity)getActivity()).exportLog();
+                ((LogActivity) getActivity()).exportLog();
 
             }
         });

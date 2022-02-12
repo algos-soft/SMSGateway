@@ -7,8 +7,7 @@
             app:key="@string/apikey"
             app:title="API Key"
             app:useSimpleSummaryProvider="true"
-            android:defaultValue="@string/apikey_default"
-            />
+            android:defaultValue="@string/apikey_default" />
 
     </PreferenceCategory>
 
@@ -18,23 +17,20 @@
             app:key="@string/host"
             app:title="Host"
             app:useSimpleSummaryProvider="true"
-            android:defaultValue="@string/host_default"
-            />
+            android:defaultValue="@string/host_default" />
 
         <EditTextPreference
             app:key="@string/port"
             app:title="Port"
             app:useSimpleSummaryProvider="true"
-            android:defaultValue="@string/port_default"
-            />
+            android:defaultValue="@string/port_default" />
 
         <SwitchPreferenceCompat
             app:key="@string/usessl"
             app:summaryOff="Call server using http://"
             app:summaryOn="Call server using https://"
             app:title="Enable SSL"
-            android:defaultValue="@string/usessl_default"
-            />
+            android:defaultValue="@string/usessl_default" />
 
 
     </PreferenceCategory>
@@ -46,8 +42,7 @@
             app:title="Polling interval (minutes)"
             android:inputType="number"
             app:useSimpleSummaryProvider="true"
-            android:defaultValue="@string/interval_minutes_default"
-            />
+            android:defaultValue="@string/interval_minutes_default" />
 
     </PreferenceCategory>
 
