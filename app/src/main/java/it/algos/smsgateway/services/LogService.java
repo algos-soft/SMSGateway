@@ -7,6 +7,8 @@ import android.util.Log;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
 
@@ -95,11 +97,15 @@ public class LogService {
         dest.setTimestamp(source.getTime().toString());
         dest.setLevel(source.getLvl());
         dest.setMessage(source.getMsg());
+
         if (source.getEx() != null) {
-//            PrintStream s = new PrintStream();
-//            source.getEx().printStackTrace();
-            dest.setStacktrace("stacktrace");
+            dest.setMessage(source.getEx().getMessage());
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            source.getEx().printStackTrace(pw);
+            dest.setStacktrace(sw.toString());
         }
+
         return dest;
     }
 
