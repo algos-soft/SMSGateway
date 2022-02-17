@@ -1,6 +1,10 @@
 package it.algos.smsgateway.background;
 
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.SystemClock;
 import android.telephony.SmsManager;
 
@@ -22,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 
 import it.algos.smsgateway.AppContainer;
+import it.algos.smsgateway.Constants;
 import it.algos.smsgateway.services.AuthService;
 import it.algos.smsgateway.services.PrefsService;
 import it.algos.smsgateway.R;
@@ -49,9 +54,11 @@ public class GatewayWorker extends Worker {
 
     private Gson gson;
 
-
     public GatewayWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
+
+        getApplicationContext().registerReceiver(new SmsSentBroadcastReceiver(), new IntentFilter(Constants.SMS_SENT));
+
     }
 
     @NonNull
@@ -194,9 +201,13 @@ public class GatewayWorker extends Worker {
 
             getLogService().logD("invoking SmsManager for " + validNumber + ", msg length=" + msg.length());
 
-            smsManager.sendTextMessage(validNumber, null, msg, null, null);
+            Intent intentSent = new Intent(Constants.SMS_SENT);
+            intentSent.putExtra("id",id);
+            PendingIntent sentPI = PendingIntent.getBroadcast(getApplicationContext(), 0, intentSent, 0);
 
-            getLogService().logI("SMS sent to # " + validNumber + ": " + msg);
+            smsManager.sendTextMessage(validNumber, null, msg, sentPI, null);
+
+            getLogService().logI("SMS sent to " + validNumber + ": " + msg);
 
             // update counters in the preferences storage
             int numSms = getPrefsService().getInt(R.string.pref_numsms);
