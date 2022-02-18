@@ -15,4 +15,10 @@
         android:title="Show Log"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/action_info"
+        android:orderInCategory="200"
+        android:title="Info"
+        app:showAsAction="never" />
+
 </menu>

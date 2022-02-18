@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.telephony.SmsManager;
 
@@ -24,16 +25,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import it.algos.smsgateway.AppContainer;
 import it.algos.smsgateway.Constants;
-import it.algos.smsgateway.services.AuthService;
-import it.algos.smsgateway.services.PrefsService;
 import it.algos.smsgateway.R;
-import it.algos.smsgateway.services.LogService;
 import it.algos.smsgateway.SmsGatewayApp;
-import it.algos.smsgateway.services.UtilsService;
 import it.algos.smsgateway.exceptions.InvalidSmsException;
+import it.algos.smsgateway.services.AuthService;
+import it.algos.smsgateway.services.LogService;
+import it.algos.smsgateway.services.PrefsService;
+import it.algos.smsgateway.services.UtilsService;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -54,6 +57,8 @@ public class GatewayWorker extends Worker {
 
     private Gson gson;
 
+    private ExecutorService executorService;
+
     public GatewayWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
@@ -69,6 +74,8 @@ public class GatewayWorker extends Worker {
         AppContainer appContainer = ((SmsGatewayApp) getApplicationContext()).appContainer;
         this.client = appContainer.okHttpClient;
         this.gson = appContainer.gson;
+        this.executorService = Executors.newFixedThreadPool(2);
+
 
 
         List<Message> messages = null;
@@ -203,24 +210,13 @@ public class GatewayWorker extends Worker {
 
             Intent intentSent = new Intent(Constants.SMS_SENT);
             intentSent.putExtra("id",id);
+            intentSent.putExtra("number",validNumber);
+            intentSent.putExtra("text",msg);
             PendingIntent sentPI = PendingIntent.getBroadcast(getApplicationContext(), 0, intentSent, 0);
 
+            // send the SMS through the SmsManager.
+            // When delivered to the Message Center, the Broadcast Receiver is notified.
             smsManager.sendTextMessage(validNumber, null, msg, sentPI, null);
-
-            getLogService().logI("SMS sent to " + validNumber + ": " + msg);
-
-            // update counters in the preferences storage
-            int numSms = getPrefsService().getInt(R.string.pref_numsms);
-            numSms++;
-            getPrefsService().putInt(R.string.pref_numsms, numSms);
-
-            String currentDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
-            getPrefsService().putString(R.string.pref_date_last_sms, currentDate);
-
-            setProgressAsync(new Data.Builder().build());
-
-            notifyMessageSent(id);
-
 
         } catch (Exception ex) {
 
@@ -299,6 +295,45 @@ public class GatewayWorker extends Worker {
         AppContainer appContainer = ((SmsGatewayApp) getApplicationContext()).appContainer;
         return appContainer.getPrefsService();
     }
+
+
+    // Invoked when the mobile device has sent the SMS to the SMSC (Short message service center).
+    // And the SMSC has confirmed it has received the SMS.
+    class SmsSentBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            String id = intent.getStringExtra("id");
+            String number = intent.getStringExtra("number");
+            String text = intent.getStringExtra("text");
+
+            getLogService().logI("SMS sent - id=" +id + ", number=" + number+", text="+text);
+
+            // update counters in the preferences storage
+            int numSms = getPrefsService().getInt(R.string.pref_numsms);
+            numSms++;
+            getPrefsService().putInt(R.string.pref_numsms, numSms);
+
+            String currentDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
+            getPrefsService().putString(R.string.pref_date_last_sms, currentDate);
+
+            setProgressAsync(new Data.Builder().build());
+
+            // the BroadcastReceiver receives the call in the main thread
+            // we must do networking in a background thread
+            executorService.execute(() -> {
+                try {
+                    notifyMessageSent(id);
+                } catch (IOException e) {
+                    getLogService().logE(e);
+                }
+            });
+
+        }
+
+    }
+
 
 
 }

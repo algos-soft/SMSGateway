@@ -1,6 +1,8 @@
 package it.algos.smsgateway;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -417,6 +419,19 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             return true;
         }
+
+        if (id == R.id.action_info) {
+
+            String appName = getString(R.string.app_name);
+            String version = BuildConfig.VERSION_NAME;
+            String message = appName+" v."+version+"\n©Algos";
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(message);
+            builder.create().show();
+
+            return true;
+        }
+
 
 
         return super.onOptionsItemSelected(item);
