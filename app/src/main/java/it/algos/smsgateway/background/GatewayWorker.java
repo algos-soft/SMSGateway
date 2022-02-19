@@ -57,12 +57,12 @@ public class GatewayWorker extends Worker {
 
     private Gson gson;
 
-    private ExecutorService executorService;
+//    private ExecutorService executorService;
 
     public GatewayWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
-        getApplicationContext().registerReceiver(new SmsSentBroadcastReceiver(), new IntentFilter(Constants.SMS_SENT));
+//        getApplicationContext().registerReceiver(new SmsSentBroadcastReceiver(), new IntentFilter(Constants.SMS_SENT));
 
     }
 
@@ -74,8 +74,7 @@ public class GatewayWorker extends Worker {
         AppContainer appContainer = ((SmsGatewayApp) getApplicationContext()).appContainer;
         this.client = appContainer.okHttpClient;
         this.gson = appContainer.gson;
-        this.executorService = Executors.newFixedThreadPool(2);
-
+//        this.executorService = Executors.newFixedThreadPool(2);
 
 
         List<Message> messages = null;
@@ -204,25 +203,47 @@ public class GatewayWorker extends Worker {
         // send the SMS
         try {
 
-            SmsManager smsManager = SmsManager.getDefault();
-
-            getLogService().logD("invoking SmsManager for " + validNumber + ", msg length=" + msg.length());
-
-            Intent intentSent = new Intent(Constants.SMS_SENT);
-            intentSent.putExtra("id",id);
-            intentSent.putExtra("number",validNumber);
-            intentSent.putExtra("text",msg);
-            PendingIntent sentPI = PendingIntent.getBroadcast(getApplicationContext(), 0, intentSent, 0);
+            // When delivered to the Message Center, the Broadcast Receiver is notified.
+            // Intent intentSent = new Intent(Constants.SMS_SENT);
+//            intentSent.putExtra("id",id);
+//            intentSent.putExtra("number",validNumber);
+//            intentSent.putExtra("text",msg);
+//            PendingIntent sentPI = PendingIntent.getBroadcast(getApplicationContext(), 0, intentSent, 0);
 
             // send the SMS through the SmsManager.
-            // When delivered to the Message Center, the Broadcast Receiver is notified.
-            smsManager.sendTextMessage(validNumber, null, msg, sentPI, null);
+            SmsManager smsManager = SmsManager.getDefault();
+            getLogService().logD("invoking SmsManager for " + validNumber + ", msg length=" + msg.length());
+            smsManager.sendTextMessage(validNumber, null, msg, null, null);
+
+            // do processing after a message has been sent
+            messageSent(id, validNumber, msg);
 
         } catch (Exception ex) {
 
             getLogService().logE(ex);
 
         }
+    }
+
+
+    /**
+     * Operations after a message has been sent
+     */
+    private void messageSent(String id, String number, String text) throws IOException {
+
+        getLogService().logI("SMS sent - id=" + id + ", number=" + number + ", text=" + text);
+
+        // update counters in the preferences storage
+        int totSms = getPrefsService().getInt(R.string.pref_numsms);
+        getPrefsService().putInt(R.string.pref_numsms, totSms+1);
+
+        String currentDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
+        getPrefsService().putString(R.string.pref_date_last_sms, currentDate);
+
+        setProgressAsync(new Data.Builder().build());
+
+        notifyMessageSent(id);
+
     }
 
 
@@ -297,43 +318,42 @@ public class GatewayWorker extends Worker {
     }
 
 
-    // Invoked when the mobile device has sent the SMS to the SMSC (Short message service center).
-    // And the SMSC has confirmed it has received the SMS.
-    class SmsSentBroadcastReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            String id = intent.getStringExtra("id");
-            String number = intent.getStringExtra("number");
-            String text = intent.getStringExtra("text");
-
-            getLogService().logI("SMS sent - id=" +id + ", number=" + number+", text="+text);
-
-            // update counters in the preferences storage
-            int numSms = getPrefsService().getInt(R.string.pref_numsms);
-            numSms++;
-            getPrefsService().putInt(R.string.pref_numsms, numSms);
-
-            String currentDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
-            getPrefsService().putString(R.string.pref_date_last_sms, currentDate);
-
-            setProgressAsync(new Data.Builder().build());
-
-            // the BroadcastReceiver receives the call in the main thread
-            // we must do networking in a background thread
-            executorService.execute(() -> {
-                try {
-                    notifyMessageSent(id);
-                } catch (IOException e) {
-                    getLogService().logE(e);
-                }
-            });
-
-        }
-
-    }
-
+//    // Invoked when the mobile device has sent the SMS to the SMSC (Short message service center).
+//    // And the SMSC has confirmed it has received the SMS.
+//    class SmsSentBroadcastReceiver extends BroadcastReceiver {
+//
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//
+//            String id = intent.getStringExtra("id");
+//            String number = intent.getStringExtra("number");
+//            String text = intent.getStringExtra("text");
+//
+//            getLogService().logI("SMS sent - id=" + id + ", number=" + number + ", text=" + text);
+//
+//            // update counters in the preferences storage
+//            int numSms = getPrefsService().getInt(R.string.pref_numsms);
+//            numSms++;
+//            getPrefsService().putInt(R.string.pref_numsms, numSms);
+//
+//            String currentDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
+//            getPrefsService().putString(R.string.pref_date_last_sms, currentDate);
+//
+//            setProgressAsync(new Data.Builder().build());
+//
+//            // the BroadcastReceiver receives the call in the main thread
+//            // we must do networking in a background thread
+//            executorService.execute(() -> {
+//                try {
+//                    notifyMessageSent(id);
+//                } catch (IOException e) {
+//                    getLogService().logE(e);
+//                }
+//            });
+//
+//        }
+//
+//    }
 
 
 }
