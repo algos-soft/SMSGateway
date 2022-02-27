@@ -21,4 +21,11 @@
         android:title="Info"
         app:showAsAction="never" />
 
+<!--    <item-->
+<!--        android:id="@+id/action_test_mail"-->
+<!--        android:orderInCategory="999"-->
+<!--        android:title="Test mail"-->
+<!--        app:showAsAction="never" />-->
+
+
 </menu>

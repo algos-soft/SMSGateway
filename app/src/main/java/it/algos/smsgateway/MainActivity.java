@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 
 import it.algos.smsgateway.background.GatewayWorker;
 import it.algos.smsgateway.logging.LogActivity;
+import it.algos.smsgateway.mail.GMailService;
 import it.algos.smsgateway.services.LogService;
 import it.algos.smsgateway.services.PrefsService;
 import it.algos.smsgateway.settings.SettingsActivity;
@@ -107,6 +108,21 @@ public class MainActivity extends AppCompatActivity {
         string = getPrefsService().getString(R.string.interval_minutes);
         if (TextUtils.isEmpty(string)) {
             getPrefsService().putString(R.string.interval_minutes, getString(R.string.interval_minutes_default));
+        }
+
+        string = getPrefsService().getString(R.string.gmail_user);
+        if (TextUtils.isEmpty(string)) {
+            getPrefsService().putString(R.string.gmail_user, getString(R.string.gmail_user_default));
+        }
+
+        string = getPrefsService().getString(R.string.gmail_password);
+        if (TextUtils.isEmpty(string)) {
+            getPrefsService().putString(R.string.gmail_password, getString(R.string.gmail_password_default));
+        }
+
+        string = getPrefsService().getString(R.string.gmail_recipient);
+        if (TextUtils.isEmpty(string)) {
+            getPrefsService().putString(R.string.gmail_recipient, getString(R.string.gmail_recipient_default));
         }
 
     }
@@ -432,6 +448,16 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
+//        if (id == R.id.action_test_mail) {
+//
+//            try {
+//                getGMailService().sendMail("This is Subject4","This is Body");
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//
+//            return true;
+//        }
 
 
         return super.onOptionsItemSelected(item);
@@ -446,6 +472,11 @@ public class MainActivity extends AppCompatActivity {
     public PrefsService getPrefsService() {
         AppContainer appContainer = ((SmsGatewayApp) getApplicationContext()).appContainer;
         return appContainer.getPrefsService();
+    }
+
+    public GMailService getGMailService() {
+        AppContainer appContainer = ((SmsGatewayApp) getApplicationContext()).appContainer;
+        return appContainer.getGMailService();
     }
 
 

@@ -2,6 +2,7 @@ package it.algos.smsgateway.services;
 
 import android.content.Context;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -19,6 +20,7 @@ import it.algos.smsgateway.SmsGatewayApp;
 import it.algos.smsgateway.logging.LogDbHelper;
 import it.algos.smsgateway.logging.LogItem;
 import it.algos.smsgateway.logging.LogItemModel;
+import it.algos.smsgateway.mail.GMailService;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -86,6 +88,34 @@ public class LogService {
             notifyNewLogItem(logItem);
         } catch (IOException e) {
             Log.w(Constants.LOG_TAG, "Could not send log item to the server");
+        }
+
+        // if error, notify the admins via email
+        if(lvl.equals("E")){
+
+            LogItemModel model = convertLogItem(logItem);
+            StringBuilder sb = new StringBuilder();
+
+            if(!TextUtils.isEmpty(model.getTimestamp())){
+                sb.append("timestamp:\n"+model.getTimestamp());
+            }
+
+            if(!TextUtils.isEmpty(model.getMessage())){
+                if(sb.length()>0){
+                    sb.append("\n\n");
+                }
+                sb.append("message:\n"+model.getMessage());
+            }
+
+            if(!TextUtils.isEmpty(model.getStacktrace())){
+                if(sb.length()>0){
+                    sb.append("\n\n");
+                }
+                sb.append("stacktrace:\n"+model.getStacktrace());
+            }
+
+            getGMailService().sendMail("SMS GATEWAY ERROR", sb.toString());
+
         }
 
 
@@ -234,6 +264,11 @@ public class LogService {
     private PrefsService getPrefsService() {
         AppContainer appContainer = ((SmsGatewayApp) context).appContainer;
         return appContainer.getPrefsService();
+    }
+
+    public GMailService getGMailService() {
+        AppContainer appContainer = ((SmsGatewayApp) context).appContainer;
+        return appContainer.getGMailService();
     }
 
 
