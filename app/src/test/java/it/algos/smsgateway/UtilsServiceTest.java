@@ -15,11 +15,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import it.algos.smsgateway.services.UtilsService;
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
- */
 @RunWith(MockitoJUnitRunner.class)
 public class UtilsServiceTest {
 
@@ -81,7 +76,7 @@ public class UtilsServiceTest {
     }
 
 
-    // bab international prefix
+    // bad international prefix
     @Test(expected = NumberParseException.class)
     public void testValidatePhoneNumber10() throws NumberParseException {
         Phonenumber.PhoneNumber phoneNumber = utilsService.validatePhoneNumber("00413388645789");

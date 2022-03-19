@@ -46,5 +46,26 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="Email" app:summary="to send alerts to admins">
+
+        <EditTextPreference
+            app:key="@string/gmail_user"
+            app:title="GMail account username"
+            app:useSimpleSummaryProvider="true"/>
+
+        <EditTextPreference
+            app:key="@string/gmail_password"
+            app:title="GMail App password"
+            android:inputType="textPassword"
+            app:summary="You can create it in Google Security settings!"/>
+
+        <EditTextPreference
+            app:key="@string/gmail_recipient"
+            app:title="Email recipient(s)"
+            app:useSimpleSummaryProvider="true"/>
+
+    </PreferenceCategory>
+
+
 
 </PreferenceScreen>

@@ -74,8 +74,6 @@ public class GatewayWorker extends Worker {
         AppContainer appContainer = ((SmsGatewayApp) getApplicationContext()).appContainer;
         this.client = appContainer.okHttpClient;
         this.gson = appContainer.gson;
-//        this.executorService = Executors.newFixedThreadPool(2);
-
 
         List<Message> messages = null;
         try {

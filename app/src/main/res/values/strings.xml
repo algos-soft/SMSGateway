@@ -12,12 +12,20 @@
     <string name="usessl">use_ssl</string>
     <string name="interval_minutes">interval_minutes</string>
 
+    <!-- GMail preferences-->
+    <string name="gmail_user">gmail_user</string>
+    <string name="gmail_password">gmail_password</string>
+    <string name="gmail_recipient">gmail_recipient</string>
+
     <!-- Default values for preferences -->
     <string name="apikey_default">922BEE5623AFD</string>
     <string name="host_default">192.168.0.6</string>
     <string name="port_default">8080</string>
     <string name="usessl_default">false</string>
     <string name="interval_minutes_default">60</string>
+    <string name="gmail_user_default">alex.valbo@gmail.com</string>
+    <string name="gmail_password_default">ngkgsdloiopxyctc</string>
+    <string name="gmail_recipient_default">alex@algos.it</string>
 
     <string name="token">token</string>
 

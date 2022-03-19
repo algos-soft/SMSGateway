@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 
 import java.util.concurrent.TimeUnit;
 
+import it.algos.smsgateway.mail.GMailService;
 import it.algos.smsgateway.services.AuthService;
 import it.algos.smsgateway.services.LogService;
 import it.algos.smsgateway.services.PrefsService;
@@ -22,6 +23,7 @@ public class AppContainer {
     public OkHttpClient okHttpClient;
     public Gson gson;
 
+
     // these services can have cross dependencies
     // they are subject to lazy creation
     // use getters to obtain them
@@ -29,6 +31,7 @@ public class AppContainer {
     private LogService logService;
     private AuthService authService;
     private PrefsService prefsService;
+    private GMailService gMailService;
 
 
     public AppContainer(Context context) {
@@ -42,7 +45,6 @@ public class AppContainer {
                 .build();
 
         gson = new Gson();
-
 
     }
 
@@ -78,6 +80,15 @@ public class AppContainer {
         prefsService = new PrefsService(context);
         return prefsService;
     }
+
+    public GMailService getGMailService() {
+        if (gMailService != null) {
+            return gMailService;
+        }
+        gMailService = new GMailService(context);
+        return gMailService;
+    }
+
 
 
 }
