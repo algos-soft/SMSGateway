@@ -44,6 +44,7 @@ import it.algos.smsgateway.mail.GMailService;
 import it.algos.smsgateway.services.LogService;
 import it.algos.smsgateway.services.PrefsService;
 import it.algos.smsgateway.settings.SettingsActivity;
+import it.algos.smsgateway.testsms.TestSmsActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -432,6 +433,12 @@ public class MainActivity extends AppCompatActivity {
 
         if (id == R.id.action_log) {
             Intent intent = new Intent(this, LogActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+        if (id == R.id.action_testsms) {
+            Intent intent = new Intent(this, TestSmsActivity.class);
             startActivity(intent);
             return true;
         }

@@ -43,6 +43,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".testsms.TestSmsActivity"
+            android:exported="false"
+            android:label="TestSMS" />
+
     </application>
 
 </manifest>

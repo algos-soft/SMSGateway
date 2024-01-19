@@ -3,6 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="it.algos.smsgateway.MainActivity">
 
+
+    <item
+        android:id="@+id/action_log"
+        android:orderInCategory="50"
+        android:title="Show Log"
+        app:showAsAction="never" />
+
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
@@ -10,9 +17,9 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_log"
-        android:orderInCategory="50"
-        android:title="Show Log"
+        android:id="@+id/action_testsms"
+        android:orderInCategory="150"
+        android:title="Test SMS"
         app:showAsAction="never" />
 
     <item
